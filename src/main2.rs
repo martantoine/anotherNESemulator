@@ -1,0 +1,157 @@
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+mod CPU6502;
+
+extern crate sdl2;
+
+use sdl2::pixels::Color;
+use sdl2::rect::Rect;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use std::time::Duration;
+use sdl2::pixels::PixelFormatEnum;
+use rand::Rng;
+
+mod imgui;
+
+pub fn main() {
+    ui.window("Hello world")
+    .size([300.0, 100.0], Condition::FirstUseEver)
+    .build(|| {
+        ui.text("Hello world!");
+        ui.text("こんにちは世界！");
+        ui.text("This...is...imgui-rs!");
+        ui.separator();
+        let mouse_pos = ui.io().mouse_pos;
+        ui.text(format!(
+            "Mouse Position: ({:.1},{:.1})",
+            mouse_pos[0], mouse_pos[1]
+        ));
+    });
+}
+/*
+
+
+
+    let mut cpu_dut = crate::CPU6502::cpu::new();
+    let game_code: Vec<u8> = vec![
+        0x20, 0x06, 0x06, 0x20, 0x38, 0x06, 0x20, 0x0d, 0x06, 0x20, 0x2a, 0x06, 0x60, 0xa9, 0x02, 0x85,
+        0x02, 0xa9, 0x04, 0x85, 0x03, 0xa9, 0x11, 0x85, 0x10, 0xa9, 0x10, 0x85, 0x12, 0xa9, 0x0f, 0x85,
+        0x14, 0xa9, 0x04, 0x85, 0x11, 0x85, 0x13, 0x85, 0x15, 0x60, 0xa5, 0xfe, 0x85, 0x00, 0xa5, 0xfe,
+        0x29, 0x03, 0x18, 0x69, 0x02, 0x85, 0x01, 0x60, 0x20, 0x4d, 0x06, 0x20, 0x8d, 0x06, 0x20, 0xc3,
+        0x06, 0x20, 0x19, 0x07, 0x20, 0x20, 0x07, 0x20, 0x2d, 0x07, 0x4c, 0x38, 0x06, 0xa5, 0xff, 0xc9,
+        0x77, 0xf0, 0x0d, 0xc9, 0x64, 0xf0, 0x14, 0xc9, 0x73, 0xf0, 0x1b, 0xc9, 0x61, 0xf0, 0x22, 0x60,
+        0xa9, 0x04, 0x24, 0x02, 0xd0, 0x26, 0xa9, 0x01, 0x85, 0x02, 0x60, 0xa9, 0x08, 0x24, 0x02, 0xd0,
+        0x1b, 0xa9, 0x02, 0x85, 0x02, 0x60, 0xa9, 0x01, 0x24, 0x02, 0xd0, 0x10, 0xa9, 0x04, 0x85, 0x02,
+        0x60, 0xa9, 0x02, 0x24, 0x02, 0xd0, 0x05, 0xa9, 0x08, 0x85, 0x02, 0x60, 0x60, 0x20, 0x94, 0x06,
+        0x20, 0xa8, 0x06, 0x60, 0xa5, 0x00, 0xc5, 0x10, 0xd0, 0x0d, 0xa5, 0x01, 0xc5, 0x11, 0xd0, 0x07,
+        0xe6, 0x03, 0xe6, 0x03, 0x20, 0x2a, 0x06, 0x60, 0xa2, 0x02, 0xb5, 0x10, 0xc5, 0x10, 0xd0, 0x06,
+        0xb5, 0x11, 0xc5, 0x11, 0xf0, 0x09, 0xe8, 0xe8, 0xe4, 0x03, 0xf0, 0x06, 0x4c, 0xaa, 0x06, 0x4c,
+        0x35, 0x07, 0x60, 0xa6, 0x03, 0xca, 0x8a, 0xb5, 0x10, 0x95, 0x12, 0xca, 0x10, 0xf9, 0xa5, 0x02,
+        0x4a, 0xb0, 0x09, 0x4a, 0xb0, 0x19, 0x4a, 0xb0, 0x1f, 0x4a, 0xb0, 0x2f, 0xa5, 0x10, 0x38, 0xe9,
+        0x20, 0x85, 0x10, 0x90, 0x01, 0x60, 0xc6, 0x11, 0xa9, 0x01, 0xc5, 0x11, 0xf0, 0x28, 0x60, 0xe6,
+        0x10, 0xa9, 0x1f, 0x24, 0x10, 0xf0, 0x1f, 0x60, 0xa5, 0x10, 0x18, 0x69, 0x20, 0x85, 0x10, 0xb0,
+        0x01, 0x60, 0xe6, 0x11, 0xa9, 0x06, 0xc5, 0x11, 0xf0, 0x0c, 0x60, 0xc6, 0x10, 0xa5, 0x10, 0x29,
+        0x1f, 0xc9, 0x1f, 0xf0, 0x01, 0x60, 0x4c, 0x35, 0x07, 0xa0, 0x00, 0xa5, 0xfe, 0x91, 0x00, 0x60,
+        0xa6, 0x03, 0xa9, 0x00, 0x81, 0x10, 0xa2, 0x00, 0xa9, 0x01, 0x81, 0x10, 0x60, 0xa2, 0x00, 0xea,
+        0xea, 0xca, 0xd0, 0xfb, 0x60
+    ];
+    cpu_dut.load_abs(0x0600, game_code);
+    cpu_dut.program_counter = 0x0600;
+    cpu_dut.load_abs(0xFFFC, vec![0x00, 0x06]);
+    
+    let mut text: Vec<u8> = vec![];
+    for y in 0..32 {
+        for x in 0..32 {
+            text.push((x * 8 ) as u8);
+        }
+    }
+    //cpu_dut.load_abs(0x0200, text);
+
+    let sdl_context = sdl2::init().unwrap();
+    let video_subsystem = sdl_context.video().unwrap();
+
+    let window = video_subsystem.window("rust-sdl2 demo", 320, 320)
+        .position_centered()
+        .build()
+        .unwrap();
+
+    let mut canvas = window.into_canvas().build().unwrap();
+
+    canvas.set_draw_color(Color::RGB(0, 255, 255));
+    canvas.clear();
+    canvas.present();
+    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut i = 0;
+
+    let width = 32;
+    let height = 32;
+    let texture_creator = canvas.texture_creator();
+    let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGB24, width as u32, height as u32).map_err(|e| e.to_string()).unwrap();
+
+    'running: loop {
+        i = (i + 1) % 255;
+        //canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
+        canvas.clear();
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                    std::process::exit(0)
+                },
+                Event::KeyDown { keycode: Some(Keycode::W), .. } => {
+                    cpu_dut.load_abs(0xff, vec![0x77]);
+                },
+                Event::KeyDown { keycode: Some(Keycode::S), .. } => {
+                    cpu_dut.load_abs(0xff, vec![0x73]);
+                },
+                Event::KeyDown { keycode: Some(Keycode::A), .. } => {
+                    cpu_dut.load_abs(0xff, vec![0x61]);
+                },
+                Event::KeyDown { keycode: Some(Keycode::D), .. } => {
+                    cpu_dut.load_abs(0xff, vec![0x64]);
+                }
+                _ => {/* do nothing */}
+            }
+        }
+        
+        cpu_dut.load_abs(0xfe, vec![rand::thread_rng().gen()]);
+        cpu_dut.interpret_single();
+        //println!("{:#X}", cpu_dut.program_counter);
+        let mut pixels: Vec<u8> = Vec::with_capacity(width * height * 3); // 3 bytes per pixel (RGB)
+        for y in 0..height {
+            for x in 0..width {
+                let c = cpu_dut.memory[0x0200 + (y * height) + x];
+                //pixels.push(c);    
+                //pixels.push(c);    
+                //pixels.push(c);    
+                //
+                if c != 0 {
+                    pixels.push(0xFF);    
+                    pixels.push(0xFF);    
+                    pixels.push(0xFF);    
+                //} else if c == 3{
+                //    pixels.push(0xFF);    
+                //    pixels.push(0);    
+                //    pixels.push(0);    
+                } else {
+                    pixels.push(0);    
+                    pixels.push(0);    
+                    pixels.push(0);    
+                }
+            }
+        }
+        texture.with_lock(None, |buffer: &mut [u8], _pitch: usize| {
+            buffer.copy_from_slice(&pixels);
+        }).unwrap();
+        
+        let scale_factor = 10;
+        let display_width = (width * scale_factor) as u32;
+        let display_height = (height * scale_factor) as u32;
+
+        canvas.copy(&texture, None, Some(Rect::new(0, 0, display_width, display_height))).unwrap();
+        canvas.present();
+        
+        //::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        ::std::thread::sleep(Duration::new(0, 7_000));
+    }
+}*/
